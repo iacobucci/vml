@@ -60,7 +60,7 @@ def parse(lines : list[str]) -> list[Element]:
     return root
 
 
-if __name__ == "__main__":
+def main():
     # check if this script is piped to stdin
     if not sys.stdin.isatty():
         # read from stdin
@@ -77,3 +77,6 @@ if __name__ == "__main__":
             with open(filename, "r") as f:
                 lines = f.readlines()
             print(parse(lines))
+
+if __name__ == "__main__":
+    main()
