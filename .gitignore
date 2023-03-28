@@ -1,4 +1,4 @@
 .vscode
 dist
-vml/__pycache__
-vml.egg-info
+vml_parser/__pycache__
+vml_parser.egg-info

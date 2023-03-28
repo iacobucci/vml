@@ -60,4 +60,4 @@ That translates to this bulky JSON. You see, it makes JSON look bulky!!!
 ]
 ```
 vml uses tabs to differentiate the hierarchical level of the current line... i think you got what i mean. Plus, you can also add checkboxes to every line with "[ ]", and you can check it with "[x]", and all this translates to a "checked" property in the JSON representation. It's easy to write vml with vi, for example you might check an empty checkbox with ```rx``` and move around tabulations efficiently with ```>>``` or ```<<```. In fact, this should really have been called tml, as in *tab markup language*, but unfortunately, that resembled too much TOML, dammit you Tom!!
-Import it with ``` import vml_parser```, so you that you can access the ```vml.parse(s : str) -> str``` method!
+Import it with ``` import vml from vml_parser```, so you that you can access the ```vml.parse(s : str) -> str``` method!
