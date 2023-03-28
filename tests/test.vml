@@ -1,0 +1,15 @@
+element 1
+	things
+		dog
+		[x] snacks
+			[ ] apple
+			pear
+		house
+	names
+		james
+		alfred
+
+[ ] element 2
+	foo
+	bar
+	baz
