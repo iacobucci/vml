@@ -59,6 +59,35 @@ def parse(lines : list[str]) -> list[Element]:
 
     return root
 
+def dump(obj : object, level: int = 0) -> list[str]:
+    lines = []
+    
+    for element in obj:
+        # check if element has children
+        if len(element.children) == 0:
+            # check if element has checkbox
+            if element.hascheckbox:
+                if element.ischecked:
+                    lines.append("\t" * level + "[x] " + element.name + "\n")
+                else:
+                    lines.append("\t" * level + "[ ] " + element.name + "\n")
+            else:
+                lines.append("\t" * level + element.name + "\n")
+        else:
+            # check if element has checkbox
+            if element.hascheckbox:
+                if element.ischecked:
+                    lines.append("\t" * level + "[x] " + element.name + "\n")
+                else:
+                    lines.append("\t" * level + "[ ] " + element.name + "\n")
+            else:
+                lines.append("\t" * level + element.name + "\n")
+                
+            # recursively call the function for children elements
+            lines.extend(dump(element.children, level = level + 1))
+        
+    return "".join(lines)
+    
 
 def main():
     # check if this script is piped to stdin
