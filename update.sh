@@ -20,3 +20,6 @@ python -m twine upload dist/*
 git add .
 git commit -m "update to version $new_version"
 git push
+
+#update local
+pip3 install --updgrade vml-parse
