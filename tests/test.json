@@ -1,0 +1,37 @@
+[
+    {
+        "element 1": [
+            {
+                "things": [
+                    "dog",
+                    {
+                        "snacks": [
+                            {
+                                "apple": [],
+                                "checked": false
+                            },
+                            "pear"
+                        ],
+                        "checked": true
+                    },
+                    "house"
+                ]
+            },
+            {
+                "names": [
+                    "james",
+                    "alfred"
+                ]
+            }
+        ]
+    },
+    {
+        "element 2": [
+            "foo",
+            "bar",
+            "baz"
+        ],
+        "checked": false
+    },
+    "foobar"
+]
