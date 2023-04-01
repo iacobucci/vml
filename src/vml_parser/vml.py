@@ -133,6 +133,10 @@ def main():
         if sys.argv[1] == "-h" or sys.argv[1] == "--help":
             usage()
             sys.exit(0)
+        if (sys.argv[1] == "-d" or sys.argv[1] == "--dump") and len(sys.argv) == 2:
+            usage()
+            sys.exit(1)
+            
 
     # get dashed arguments
     dashed_args = []
@@ -168,7 +172,7 @@ def main():
             print(parse(lines))
             sys.exit(0)
 
-        for filename in sys.argv:
+        for filename in sys.argv[1:]:
             if os.path.isfile(filename):
                 with open(filename, "r") as f:
                     lines = f.readlines()

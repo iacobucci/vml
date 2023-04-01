@@ -1,6 +1,6 @@
 [project]
 name = "vml-parser"
-version = "0.0.7"
+version = "0.0.8"
 authors = [
   { name="Valerio Iacobucci", email="valerio@valerioiacobucci.com" },
 ]

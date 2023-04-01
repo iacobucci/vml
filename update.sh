@@ -22,4 +22,5 @@ git commit -m "update to version $new_version"
 git push
 
 #update local
+sleep 5
 pip3 install --updgrade vml-parse
