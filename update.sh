@@ -23,4 +23,4 @@ git push
 
 #update local
 sleep 5
-pip3 install --upgrade vml-parse
+pip3 install --upgrade vml-parser
