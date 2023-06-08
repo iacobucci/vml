@@ -135,8 +135,10 @@ def markdownify(obj: list[Element], title: str = "") -> list[str]:
     if title == "":
         for item in get_element_and_level(obj):
             if item[1] == 0:
+                print()
                 print("# " + item[0].name)
             elif item[1] == 1:
+                print()
                 print("## " + item[0].name)
             else:
                 if item[0].hascheckbox:
@@ -144,9 +146,11 @@ def markdownify(obj: list[Element], title: str = "") -> list[str]:
                 else:
                     print("\t" * (item[1] - 2) + "- " + item[0].name)
     else:
+        print()
         print ("# " + title.split(".")[0].strip().replace("_", " ").replace("-", " "))
         for item in get_element_and_level(obj):
             if item[1] == 0:
+                print()
                 print("## " + item[0].name)
             else:
                 if item[0].hascheckbox:
