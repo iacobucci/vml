@@ -214,7 +214,7 @@ def main():
         if not sys.stdin.isatty():
             lines = sys.stdin.readlines()
             if len(lines) != 0:
-                print(markdownify(parse(lines)))
+                markdownify(parse(lines))
                 sys.exit(0)
             
         if len(sys.argv) == 3:
