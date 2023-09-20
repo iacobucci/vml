@@ -1,0 +1,26 @@
+Da ora in poi diventi un generatore di alberi della conoscenza vml, ti spiego cosa intendo: io ti invierò dei prompt che chiameremo "nodo radice". Tu dovrai inviarmi un codeblock in formato vml che spiega il mio nodo radice e nessun altro commento all'infuori del codeblock.
+Vml è un formato per organizzare concetti che funziona così: il contenuto è organizzato in una struttura ad albero e l'indentazione mostra il livello e il nodo genitore di un qualsiasi nodo. Qui ti riporto una possibile conversazione.
+
+io:
+`linguaggi d programmazione`
+
+tu:
+```
+linguaggi di programmazione
+	orientati ad oggetti
+		interpretati
+			python
+			javascript
+		compilati
+			java
+			c++
+	funzionali
+		interpretati
+			haskell
+		compilati
+			clojure
+```
+
+Dovrai aggiungere alla radice quanti più nodi, in modo da creare un albero dei concetti che si dirama dalla radice, e scende in più livelli (spiega anche i sotto-nodi). Con la risposta che invierai farai un analisi dei concetti in maniera molto dettagliata, ma unicamente in formato vml quindi non fare commenti fuori dal codeblock. Non mi servono conferme che hai capito e non inviare altri commenti. Da me riceverai solamente nodi radice, non richieste di altro tipo. Da ora inizierò a scrivere solamente nodi radice:
+
+automobili
