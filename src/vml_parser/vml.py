@@ -3,12 +3,18 @@ import sys
 import os
 import json
 
+
 class Element:
     def __init__(self, name: str):
-        self.name : str = name
-        self.children : list[Element] = []
-        self.hascheckbox : bool = False
-        self.ischecked : bool = False
+        self.name: str = name
+        self.children: list[Element] = []
+
+        self.hascheckbox: bool = False
+        self.ischecked: bool = False
+
+        self.hasfootnote: bool = False
+        self.footnote: str = ""
+
         if (name.startswith("[x]") or name.startswith("[ ]")):
             self.hascheckbox = True
             if name.startswith("[x]"):
@@ -17,10 +23,19 @@ class Element:
                 self.ischecked = False
             self.name = name[3:].strip()
 
-    def append(self, child : "Element") -> None:
+        if (name.startswith("[^")):
+            self.hasfootnote = True
+            self.name = name.split("]:")[1].strip()
+            self.footnote = name.split("[^")[1].split("]:")[0].strip()
+
+    # call with square brackets
+    def __getitem__(self, index: int) -> "Element":
+        return self.children[index]    
+
+    def append(self, child: "Element") -> None:
         self.children.append(child)
-        
-    def setchecked(self, checked : bool) -> None:
+
+    def setchecked(self, checked: bool) -> None:
         self.hascheckbox = True
         self.ischecked = checked
 
@@ -30,6 +45,11 @@ class Element:
                 return '{"' + self.name + '"' + ": " + str(self.children) + ', "checked":' + str(self.ischecked).lower() + "}"
             else:
                 return '{"' + self.name + '"' + ": " + str(self.children) + ', "checked":' + str(self.ischecked).lower() + "}"
+        
+        if self.hasfootnote:
+            if len(self.children) == 0:
+                return '"[^' + self.footnote + "]: " + self.name + '"'
+            return '{"[^' + self.footnote + "]: " + self.name + '"' + ": " + str(self.children) + "}"
 
         else:
             if len(self.children) == 0:
@@ -43,6 +63,9 @@ class Element:
 def parse(lines: list[str]) -> list[Element]:
     root = []
     for line in lines:
+        if line.strip() == "":
+            continue
+
         if line.startswith("\n"):
             continue
 
@@ -64,42 +87,49 @@ def parse(lines: list[str]) -> list[Element]:
 
     return root
 
+
 def dump(obj: list[Element], level: int = 0) -> list[str]:
     lines = []
+    notes: list[Element] = []
 
     for element in obj:
         # check if element has children
+
+        if element.hasfootnote:
+            notes.append(element)
+            continue
+
+        if element.hascheckbox:
+            if element.ischecked:
+                lines.append("\t" * level + "[x] " + element.name)
+            else:
+                lines.append("\t" * level + "[ ] " + element.name)
+
         if len(element.children) == 0:
             # check if element has checkbox
-            if element.hascheckbox:
-                if element.ischecked:
-                    lines.append("\t" * level + "[x] " + element.name)
-                else:
-                    lines.append("\t" * level + "[ ] " + element.name)
-            else:
+            if not element.hascheckbox:
                 lines.append("\t" * level + element.name)
         else:
             # check if element has checkbox
-            if element.hascheckbox:
-                if element.ischecked:
-                    lines.append("\t" * level + "[x] " + element.name)
-                else:
-                    lines.append("\t" * level + "[ ] " + element.name)
-            else:
+            if not element.hascheckbox:
                 lines.append("\t" * level + element.name)
 
             # recursively call the function for children elements
-            lines += dump(element.children, level + 1)  
+            lines += dump(element.children, level + 1)
+
+    for note in notes:
+        lines.append("[^" + note.footnote + "]: " + note.name)
 
     return lines
 
-def dumps(lines : list[str]) -> list[str]:
+
+def dumps(lines: list[str]) -> list[str]:
     def convert(obj) -> list[Element]:
         root = []
 
         if not isinstance(obj, list):
             obj = [obj]
-        
+
         for item in obj:
             if isinstance(item, str):
                 element = Element(item)
@@ -108,9 +138,10 @@ def dumps(lines : list[str]) -> list[str]:
                 element = Element(name)
                 children = item[name]
                 element.children = convert(children)
-                if "checked" in item.keys():
-                    element.hascheckbox = True
-                    element.ischecked = item["checked"]
+                if len(item.keys()) > 1:
+                    if "checked" in list(item.keys())[1:]:
+                        element.hascheckbox = True
+                        element.ischecked = item["checked"]
             root.append(element)
         return root
 
@@ -118,10 +149,10 @@ def dumps(lines : list[str]) -> list[str]:
     data = dump(root)
     return data
 
-                
+
 def markdownify(obj: list[Element], title: str = "") -> list[str]:
-    def get_element_and_level(elements : list[Element], level : int =0):
-        flat_elements : list[(Element,int)] = []
+    def get_element_and_level(elements: list[Element], level: int = 0):
+        flat_elements: list[(Element, int)] = []
 
         for element in elements:
             flat_elements.append((element, level))
@@ -131,9 +162,13 @@ def markdownify(obj: list[Element], title: str = "") -> list[str]:
                     element.children, level + 1))
 
         return flat_elements
-    
+
+    footnotes = []
     if title == "":
         for item in get_element_and_level(obj):
+            if item[0].hasfootnote:
+                footnotes.append(item)
+                continue
             if item[1] == 0:
                 print()
                 print("# " + item[0].name)
@@ -142,22 +177,30 @@ def markdownify(obj: list[Element], title: str = "") -> list[str]:
                 print("## " + item[0].name)
             else:
                 if item[0].hascheckbox:
-                    print("\t" * (item[1] - 2) + "- [x] " + item[0].name) if item[0].ischecked else print ("\t" * (item[1] - 2) + "- [ ] " + item[0].name)
+                    print("\t" * (item[1] - 2) + "- [x] " + item[0].name) if item[0].ischecked else print(
+                        "\t" * (item[1] - 2) + "- [ ] " + item[0].name)
                 else:
                     print("\t" * (item[1] - 2) + "- " + item[0].name)
     else:
         print()
-        print ("# " + title.split(".")[0].strip().replace("_", " ").replace("-", " "))
+        print("# " + title.split(".")
+              [0].strip().replace("_", " ").replace("-", " "))
         for item in get_element_and_level(obj):
+            if item[0].hasfootnote:
+                footnotes.append(item)
+                continue
             if item[1] == 0:
                 print()
                 print("## " + item[0].name)
             else:
                 if item[0].hascheckbox:
-                    print("\t" * (item[1] - 1) + "- [x] " + item[0].name) if item[0].ischecked else print ("\t" * (item[1] - 1) + "- [ ] " + item[0].name)
+                    print("\t" * (item[1] - 1) + "- [x] " + item[0].name) if item[0].ischecked else print(
+                        "\t" * (item[1] - 1) + "- [ ] " + item[0].name)
                 else:
                     print("\t" * (item[1] - 1) + "- " + item[0].name)
-
+    print()
+    for footnote in footnotes:
+        print("[^" + footnote[0].footnote + "]: " + footnote[0].name)
 
 
 def usage():
@@ -169,7 +212,7 @@ def main():
     if len(sys.argv) == 1 and sys.stdin.isatty():
         usage()
         sys.exit(1)
-    
+
     if len(sys.argv) > 1 and sys.stdin.isatty():
         if sys.argv[1] == "-h" or sys.argv[1] == "--help":
             usage()
@@ -180,7 +223,6 @@ def main():
         if (sys.argv[1] == "-m" or sys.argv[1] == "--markdown") and len(sys.argv) == 2:
             usage()
             sys.exit(1)
-            
 
     # get dashed arguments
     dashed_args = []
@@ -189,7 +231,7 @@ def main():
             dashed_args.append(arg)
         else:
             break
-        
+
     # dump logic
     if "-d" in dashed_args or "--dump" in dashed_args:
         if not sys.stdin.isatty():
@@ -209,14 +251,14 @@ def main():
                     print(line)
         sys.exit(0)
 
-    #markdownify logic
+    # markdownify logic
     elif "-m" in dashed_args or "--markdown" in dashed_args:
         if not sys.stdin.isatty():
             lines = sys.stdin.readlines()
             if len(lines) != 0:
                 markdownify(parse(lines))
                 sys.exit(0)
-            
+
         if len(sys.argv) == 3:
             if os.path.isfile(sys.argv[2]):
                 with open(sys.argv[2], "r") as f:
@@ -230,8 +272,8 @@ def main():
                     lines = f.readlines()
                 markdownify(parse(lines), filename)
         sys.exit(0)
-        
-    #parse logic
+
+    # parse logic
     else:
         if not sys.stdin.isatty():
             lines = sys.stdin.readlines()
@@ -244,7 +286,6 @@ def main():
                 with open(filename, "r") as f:
                     lines = f.readlines()
                 print(parse(lines))
-                
 
 
 if __name__ == "__main__":

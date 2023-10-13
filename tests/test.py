@@ -53,3 +53,15 @@ class TestVML(unittest.TestCase):
         result = ['element 1', '\tthings', '\t\tdog', '\t\t[x] snacks', '\t\t\t[ ] apple', '\t\t\tpear', '\t\thouse', '\tnames', '\t\tjames', '\t\talfred', '[ ] element 2', '\tfoo', '\tbar', '\tbaz', 'foobar']
         
         self.assertEqual(dump, result)
+
+    def test_footnotes(self):
+        l = ["root","\tnew element[^1]",'\t\t[^1]:footnote 1', "chimpanzee"]
+        dump = vml.parse(l)
+
+        print(dump)
+
+        md = vml.markdownify(dump,"test footnotes")
+
+        print(md)
+
+        self.assertEqual(dump[0][0][0].footnote, "1")
