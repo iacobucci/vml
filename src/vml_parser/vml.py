@@ -30,7 +30,7 @@ class Element:
 
     # call with square brackets
     def __getitem__(self, index: int) -> "Element":
-        return self.children[index]    
+        return self.children[index]
 
     def append(self, child: "Element") -> None:
         self.children.append(child)
@@ -45,7 +45,7 @@ class Element:
                 return '{"' + self.name + '"' + ": " + str(self.children) + ', "checked":' + str(self.ischecked).lower() + "}"
             else:
                 return '{"' + self.name + '"' + ": " + str(self.children) + ', "checked":' + str(self.ischecked).lower() + "}"
-        
+
         if self.hasfootnote:
             if len(self.children) == 0:
                 return '"[^' + self.footnote + "]: " + self.name + '"'
@@ -150,6 +150,9 @@ def dumps(lines: list[str]) -> list[str]:
     return data
 
 
+def filename_to_title(filename: str) -> str:
+    return "".join(filename.split(".")[:-1]).strip().replace("_", " ").replace("-", " - ")
+
 def markdownify(obj: list[Element], title: str = "") -> list[str]:
     def get_element_and_level(elements: list[Element], level: int = 0):
         flat_elements: list[(Element, int)] = []
@@ -183,8 +186,7 @@ def markdownify(obj: list[Element], title: str = "") -> list[str]:
                     print("\t" * (item[1] - 2) + "- " + item[0].name)
     else:
         print()
-        print("# " + title.split(".")
-              [0].strip().replace("_", " ").replace("-", " "))
+        print("# " + filename_to_title(title))
         for item in get_element_and_level(obj):
             if item[0].hasfootnote:
                 footnotes.append(item)
@@ -242,13 +244,23 @@ def main():
 
                 sys.exit(0)
 
-        for filename in sys.argv[1:]:
+        if len(sys.argv[2:]) == 1:
+            filename = sys.argv[2]
             if os.path.isfile(filename):
                 with open(filename, "r") as f:
                     lines = f.readlines()
 
                 for line in dumps(lines):
                     print(line)
+        else:
+            for filename in sys.argv[2:]:
+                print(filename_to_title(filename))
+                if os.path.isfile(filename):
+                    with open(filename, "r") as f:
+                        lines = f.readlines()
+
+                    for line in dumps(lines):
+                        print("\t" + line)
         sys.exit(0)
 
     # markdownify logic
@@ -281,11 +293,25 @@ def main():
                 print(parse(lines))
                 sys.exit(0)
 
-        for filename in sys.argv[1:]:
+        if len(sys.argv[1:]) == 1:
+            filename = sys.argv[1]
             if os.path.isfile(filename):
                 with open(filename, "r") as f:
                     lines = f.readlines()
                 print(parse(lines))
+        else:
+            print("[", end="")
+            for filename in sys.argv[1:]:
+                print("{\"" + filename_to_title(filename) + "\": ", end="")
+                if os.path.isfile(filename):
+                    with open(filename, "r") as f:
+                        lines = f.readlines()
+                        print(parse(lines), end="")
+                print("}", end="")
+                if filename != sys.argv[-1]:
+                    print(",", end="")
+
+            print("]", end="")
 
 
 if __name__ == "__main__":
